@@ -26,7 +26,8 @@ int main()
     int sd,newsd,ser,n,a,cli,pid,bd,port,clilen;
     char name[100],fileread[100],fname[100],ch,file[100],rcv[100];
     struct sockaddr_in servaddr,cliaddr;
-    bool rsa = true;
+    bool rsa = false;
+    int opt = 1;
 
     printf("Masukkan port\t: ");
     scanf("%d",&port);
@@ -36,11 +37,19 @@ int main()
     else
         printf("Berhasil membuat socket pada %d\n", port);
     
-    servaddr.sin_family=AF_INET;
-    servaddr.sin_addr.s_addr=htonl(INADDR_ANY);
-    servaddr.sin_port=htons(port);
-    a=sizeof(servaddr);
-    bd=bind(sd,(struct sockaddr *)&servaddr,a);
+    // Forcefully attaching socket to the port 8080
+    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                                                  &opt, sizeof(opt)))
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
+    cliaddr.sin_family=AF_INET;
+    cliaddr.sin_addr.s_addr=htonl(INADDR_ANY);
+    cliaddr.sin_port=htons(port);
+    a=sizeof(cliaddr);
+    bd=bind(sd,(struct sockaddr *)&cliaddr,a);
 
     if(bd<0)
         printf("Cant bind\n");

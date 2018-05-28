@@ -40,9 +40,18 @@ int main()
         exit(0);
     }
 
+    memset(&servaddr, '0', sizeof(servaddr));
+
     servaddr.sin_family=AF_INET;
     servaddr.sin_addr.s_addr=htonl(INADDR_ANY);
     servaddr.sin_port=htons(cport);
+    // Convert IPv4 and IPv6 addresses from text to binary form
+	if(inet_pton(AF_INET, "192.168.200.68", &servaddr.sin_addr)<=0) 
+	{
+		printf("\nInvalid address/ Address not supported \n");
+		return -1;
+	}
+    
     if(connect(csd,(struct sockaddr *)&servaddr,sizeof(servaddr))<0){
         printf("Error in connection\n");
         exit(0);
@@ -50,7 +59,7 @@ int main()
     else
         printf("connected\n");
 
-    bool rsa = true;
+    bool rsa = false;
 
     if(rsa)
         generateKey();
